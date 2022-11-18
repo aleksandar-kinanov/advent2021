@@ -1,56 +1,44 @@
 use std::fs;
-use std::str::FromStr;
-
-
+use std::collections::HashMap;
 #[derive(Debug)]
-struct Position {
-    horizontal_distance: u32,
-    depth: u32,
-    aim: u32
-}
-
-enum Movement {
-    Forward,
-    Down,
-    Up
-}
-
-impl Position {
-    fn new() -> Position {
-        Position { horizontal_distance: 0, depth: 0, aim: 0}
-    }
-    fn mv(&mut self, direction: Movement, distance: u32){
-        match direction {
-            Movement::Forward => {self.horizontal_distance += distance; self.depth += distance * self.aim},
-            Movement::Down => {self.aim += distance},
-            Movement::Up => {self.aim -= distance},
-        };
-    }
-}
-
-impl FromStr for Movement {
-
-    type Err = ();
-
-    fn from_str(input: &str) -> Result<Movement, Self::Err> {
-        match input {
-            "forward"  => Ok(Movement::Forward),
-            "up"  => Ok(Movement::Up),
-            "down" => Ok(Movement::Down),
-            _      => Err(()),
-        }
-    }
-}
-
+struct Test {
+    nested_hashmap: HashMap<String,HashMap<String, i32>>,
+  }
 fn main (){
-    let mut obj = Position::new();
     let data = fs::read_to_string("./dummy_data.txt").expect("Unable to read file");
-    for item in data.split('\n'){
-        match item.split_once(' '){
-            Some((distance, direction)) => { obj.mv(Movement::from_str(distance).unwrap(), direction.parse::<u32>().unwrap())},
-            _ => ()
+    let parsed_data: Vec<&str> = data.split('\n').collect();
+    let radix = parsed_data[0].len();
+
+    let mut test = Test { nested_hashmap: HashMap::new() };
+    for item in parsed_data{
+        let char_vec: Vec<char> = item.chars().collect();
+        for (i, el) in char_vec.iter().enumerate() {
+            match i.to_string().as_str() {
+                _ => test.nested_hashmap
+                    .entry(format!("Index{}", char::from_digit(i as u32, radix as u32).unwrap()).to_string())
+                    .or_insert(HashMap::new())
+                    .entry(format!("{}", el).to_string())
+                    .and_modify(|target| *target += 1)
+                    .or_insert(1)
+            };
         }
     }
-    let result = obj.horizontal_distance * obj.depth;
-    println!("{:#?}", result)
+    let mut bin_rep: String = "".to_owned();
+    let mut sorted: Vec<_> = test.nested_hashmap.into_iter().collect();
+
+    sorted.sort_by(|x,y| x.0.cmp(&y.0));
+    for (_,v) in sorted {
+
+        let current_reuslt = v
+        .iter()
+        .max_by(|a, b| a.1.cmp(&b.1))
+        .map(|(k, _v)| k);
+
+        bin_rep.push_str(current_reuslt.unwrap())
+    }
+
+    let parsed_binary = isize::from_str_radix(&bin_rep, 2).unwrap();
+    let inversed = 0xfff & !parsed_binary;
+    let result = parsed_binary * inversed;
+    println!("{}", result); 
 }
