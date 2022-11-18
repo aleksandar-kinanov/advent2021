@@ -710,7 +710,7 @@ forward 8
 forward 7
 forward 7
 down 1
-ups 3
+up 3
 down 8
 down 9
 forward 6
