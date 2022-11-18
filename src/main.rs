@@ -21,7 +21,7 @@ impl Position {
     }
     fn mv(&mut self, direction: Movement, distance: u32){
         match direction {
-            Movement::Forward => {self.horizontal_distance += distance; self.depth = self.depth + (distance * self.aim)},
+            Movement::Forward => {self.horizontal_distance += distance; self.depth += distance * self.aim},
             Movement::Down => {self.aim += distance},
             Movement::Up => {self.aim -= distance},
         };
@@ -51,7 +51,6 @@ fn main (){
             _ => ()
         }
     }
-    println!("{} - {}", obj.horizontal_distance, obj.depth);
     let result = obj.horizontal_distance * obj.depth;
     println!("{:#?}", result)
 }
