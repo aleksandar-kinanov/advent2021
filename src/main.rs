@@ -1,44 +1,40 @@
 use std::fs;
-use std::collections::HashMap;
-#[derive(Debug)]
-struct Test {
-    nested_hashmap: HashMap<String,HashMap<String, i32>>,
-  }
+fn extract(mut input: Vec<&str>, switch: bool) -> &str{
+    let mut _ones: Vec<&str> = Vec::new();
+    let mut _zeroes: Vec<&str> = Vec::new();
+    let mut counter = 0;
+    let break_point= input.clone().iter().nth(0).unwrap().len();
+
+    while counter < break_point{
+        _ones.clear();
+        _zeroes.clear();
+
+        for item in input.clone(){
+            let current = item.chars().nth(counter).unwrap();
+            match current {
+                '1' => _ones.push(item),
+                '0' => _zeroes.push(item),
+                _ => ()
+                
+            }
+        }
+        input = match 1 {
+            _ if _ones.len() >= _zeroes.len() && switch => _zeroes.clone(),
+            _ if _ones.len() < _zeroes.len() && switch => _ones.clone(),
+            _ if _ones.len() >= _zeroes.len() && !switch => _ones.clone(),
+            _ if _ones.len() < _zeroes.len() && !switch => _zeroes.clone(),
+            _ => Vec::new()
+        };
+        if input.len() == 1{
+            break;
+        }
+        counter += 1
+    }
+    return input[0];
+}
 fn main (){
     let data = fs::read_to_string("./dummy_data.txt").expect("Unable to read file");
-    let parsed_data: Vec<&str> = data.split('\n').collect();
-    let radix = parsed_data[0].len();
-
-    let mut test = Test { nested_hashmap: HashMap::new() };
-    for item in parsed_data{
-        let char_vec: Vec<char> = item.chars().collect();
-        for (i, el) in char_vec.iter().enumerate() {
-            match i.to_string().as_str() {
-                _ => test.nested_hashmap
-                    .entry(format!("Index{}", char::from_digit(i as u32, radix as u32).unwrap()).to_string())
-                    .or_insert(HashMap::new())
-                    .entry(format!("{}", el).to_string())
-                    .and_modify(|target| *target += 1)
-                    .or_insert(1)
-            };
-        }
-    }
-    let mut bin_rep: String = "".to_owned();
-    let mut sorted: Vec<_> = test.nested_hashmap.into_iter().collect();
-
-    sorted.sort_by(|x,y| x.0.cmp(&y.0));
-    for (_,v) in sorted {
-
-        let current_reuslt = v
-        .iter()
-        .max_by(|a, b| a.1.cmp(&b.1))
-        .map(|(k, _v)| k);
-
-        bin_rep.push_str(current_reuslt.unwrap())
-    }
-
-    let parsed_binary = isize::from_str_radix(&bin_rep, 2).unwrap();
-    let inversed = 0xfff & !parsed_binary;
-    let result = parsed_binary * inversed;
-    println!("{}", result); 
+    let mut parsed_data: Vec<&str> = data.split('\n').collect();
+    parsed_data.sort();
+    println!("{:?}", isize::from_str_radix(extract(parsed_data.clone(), false), 2).unwrap() * isize::from_str_radix(extract(parsed_data.clone(), true), 2).unwrap())
 }
