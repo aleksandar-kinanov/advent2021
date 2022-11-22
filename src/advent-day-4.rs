@@ -81,5 +81,4 @@ fn main() {
     let last_winner = winners.last().unwrap();
     println!("First winner: {:?}", (winners[0].array.sum() - winners[0].increment) * (winners[0].winning_number as i32));
     println!("Last Winner: {:?}", (last_winner.array.sum() - last_winner.increment) * (last_winner.winning_number as i32));
-
 }
