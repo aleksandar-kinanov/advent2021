@@ -10,10 +10,7 @@ struct Matrix {
 
 impl Matrix {
     fn append(&mut self, append: Vec<i32>) {
-        let _ = self.array.append(
-            Axis(0),
-            ArrayView::from(&append).into_shape((1, 5)).unwrap(),
-        );
+        self.array.append(Axis(0),ArrayView::from(&append).into_shape((1, 5)).unwrap());
     }
 
     fn new() -> Matrix {
